@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package hire;
+
+option go_package = "hirepb";
+
+message HireData {
+    string id = 1;
+    string Name = 2;
+    HireType Type = 3;
+    int32 Duration = 4;
+    string Role = 5;
+    repeated string Tags = 6;
+}
+
+enum HireType {
+    UNSPECIFIED = 0;
+    EMPLOYEE = 1;
+    CONTRACTOR = 2;
+}
+
+message CreateHireRequest {
+    HireData data = 1;
+}
+
+message CreateHireResponse {
+    HireData data = 1;
+}
+
+// find_pattern is the key type to search for.
+// find_text is used when the key type is a string.
+// find_number is used when the key type is numeric.
+// find_type is used when the key type is HireType.
+message FindHireRequest {
+    string find_pattern = 1;
+    string find_text = 2;
+    int32 find_number = 3;
+    HireType find_type = 4;
+}
+
+message FindHireResponse {
+    HireData data = 1;
+}
+
+message FindOneHireRequest {
+    string hire_name = 1;
+}
+
+// found is set to true when the requested data is found. False otherwise.
+// the data is filled with the data of the document found.
+message FindOneHireResponse {
+    bool found = 1;
+    HireData data = 2;
+}
+
+// this message is empty since we are requesting all documents from the DB
+message ListHireRequest {
+
+}
+
+// this value is streamed.
+message ListHireResponse {
+    HireData data = 1;
+}
+
+// the string representing the name of the hire looked for
+message DeleteHireRequest {
+    string hire_name = 1;
+}
+
+// the string representing the name of the hire looked for
+message DeleteHireResponse {
+    string hire_name = 1;
+}
+
+// the new data for the hire is sent
+message UpdateHireRequest {
+    HireData data = 1;
+}
+
+message UpdateHireResponse {
+    HireData data = 1;
+}
+
+service HireDataService {
+    // Service to create a new hire
+    rpc CreateHire (CreateHireRequest) returns (CreateHireResponse);
+
+    // Request is a string with the attribute to look for: name, role, type, duration, tag
+    rpc FindHire (FindHireRequest) returns (stream FindHireResponse);
+
+    // Services looks for hire data in the database and returns true if found, false otherwise
+    rpc FindOneHire(FindOneHireRequest) returns (FindOneHireResponse);
+
+    // Service to show all hires in the database collection
+    rpc ListHires (ListHireRequest) returns (stream ListHireResponse);
+
+    // Service to delete a hire from the database collection
+    rpc DeleteHire (DeleteHireRequest) returns (DeleteHireResponse);
+
+    // Service updates a current hire data
+    rpc UpdateHire (UpdateHireRequest) returns (UpdateHireResponse);
+}
